@@ -25,8 +25,8 @@ export const Button: ComponentStyleConfig = {
       border: '1px solid',
       borderColor: 'brand.300',
       _hover: {
-        bg: 'brand.100',
-        borderColor: 'brand.200',
+        bg: 'brand.400',
+        borderColor: 'brand.400',
       },
     },
     outline: {
@@ -35,8 +35,8 @@ export const Button: ComponentStyleConfig = {
       border: '1px solid',
       borderColor: 'brand.200',
       _hover: {
-        bg: 'brand.300',
-        borderColor: 'brand.300',
+        bg: 'brand.400',
+        borderColor: 'brand.400',
       },
     },
     oauth: {
@@ -44,8 +44,8 @@ export const Button: ComponentStyleConfig = {
       border: '1px solid',
       borderColor: 'brand.200',
       _hover: {
-        bg: 'brand.300',
-        borderColor: 'brand.300',
+        bg: 'brand.400',
+        borderColor: 'brand.400',
       },
     }
   },
