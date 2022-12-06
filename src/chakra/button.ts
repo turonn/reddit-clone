@@ -4,7 +4,7 @@ export const Button: ComponentStyleConfig = {
   baseStyle: {
     borderRadius: '60px',
     fontSize: '10px',
-    fontWeight: '700',
+    fontWeight: 700,
     color: 'brand.400',
     _focus: {
       boxShadow: 'none',
@@ -40,8 +40,10 @@ export const Button: ComponentStyleConfig = {
       },
     },
     oauth: {
+      color: 'brand.200',
       height: '34px',
       border: '1px solid',
+      bg: 'gray.200',
       borderColor: 'brand.200',
       _hover: {
         bg: 'brand.400',
