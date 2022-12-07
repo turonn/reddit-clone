@@ -10,6 +10,8 @@ import {
 import React, { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { authModalState } from '../../../atoms/authModalAtom';
+import { auth } from '../../../firebase/clientApp';
+import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 
 const SignUp: React.FC = () => {
   const [signUpForm, setSignUpForm] = useState({
@@ -17,21 +19,28 @@ const SignUp: React.FC = () => {
     password: '',
     confirmPassword: '',
   });
+  const [createUserWithEmailAndPassword, user, loading, error] =
+    useCreateUserWithEmailAndPassword(auth);
+  const [formError, setFormError] = useState('');
 
-  const isValidPassword = () => {
-    return (
-      signUpForm.password === signUpForm.confirmPassword &&
-      !containsWhitespace(signUpForm.password) &&
-      signUpForm.password.length > 0
-    );
-  };
   const containsWhitespace = (str: string) => {
     return /\s/.test(str);
   };
 
   const setAuthModalState = useSetRecoilState(authModalState);
 
-  const onSubmit = () => {};
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (containsWhitespace(signUpForm.password)) {
+      setFormError('Passwords cannot contain whitespace');
+      return;
+    }
+    if (signUpForm.password !== signUpForm.confirmPassword) {
+      setFormError('Passwords do not match.');
+      return;
+    }
+    createUserWithEmailAndPassword(signUpForm.email, signUpForm.password);
+  };
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSignUpForm((prev) => ({
@@ -53,6 +62,7 @@ const SignUp: React.FC = () => {
         name="email"
         placeholder="email"
         type="email"
+        autoComplete="username"
         mb={2}
         onChange={onChange}
         isRequired
@@ -65,50 +75,45 @@ const SignUp: React.FC = () => {
           borderColor: 'brand.400',
         }}
       />
-      <InputGroup>
-        <Input
-          name="password"
-          placeholder="password"
-          type="password"
-          mb={2}
-          onChange={onChange}
-          isRequired
-          _hover={{
-            border: 'solid 1px',
-            borderColor: 'brand.300',
-          }}
-          _focus={{
-            border: 'solid 1px',
-            borderColor: 'brand.400',
-          }}
-        />
-        <InputRightElement>
-          {isValidPassword() && <CheckIcon color="green.500" />}
-          {!isValidPassword() && <CloseIcon color="red.500" />}
-        </InputRightElement>
-      </InputGroup>
-      <InputGroup>
-        <Input
-          name="confirmPassword"
-          placeholder="confirm password"
-          type="password"
-          mb={2}
-          onChange={onChange}
-          isRequired
-          _hover={{
-            border: 'solid 1px',
-            borderColor: 'brand.300',
-          }}
-          _focus={{
-            border: 'solid 1px',
-            borderColor: 'brand.400',
-          }}
-        />
-        <InputRightElement>
-          {isValidPassword() && <CheckIcon color="green.500" />}
-          {!isValidPassword() && <CloseIcon color="red.500" />}
-        </InputRightElement>
-      </InputGroup>
+      <Input
+        name="password"
+        placeholder="password"
+        type="password"
+        autoComplete="new-password"
+        mb={2}
+        onChange={onChange}
+        isRequired
+        _hover={{
+          border: 'solid 1px',
+          borderColor: 'brand.300',
+        }}
+        _focus={{
+          border: 'solid 1px',
+          borderColor: 'brand.400',
+        }}
+      />
+      <Input
+        name="confirmPassword"
+        placeholder="confirm password"
+        type="password"
+        autoComplete="new-password"
+        mb={2}
+        onChange={onChange}
+        isRequired
+        _hover={{
+          border: 'solid 1px',
+          borderColor: 'brand.300',
+        }}
+        _focus={{
+          border: 'solid 1px',
+          borderColor: 'brand.400',
+        }}
+      />
+      {formError && (
+        <Text align="center" fontSize="9px" color="red.400" fontWeight={700}>
+          {formError}
+        </Text>
+      )}
       <Button
         type="submit"
         width="100%"

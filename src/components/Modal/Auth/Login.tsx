@@ -35,6 +35,7 @@ const Login: React.FC<LoginProps> = () => {
         name="email"
         placeholder="email"
         type="email"
+        autoComplete="username"
         mb={2}
         onChange={onChange}
         isRequired
@@ -51,6 +52,7 @@ const Login: React.FC<LoginProps> = () => {
         name="password"
         placeholder="password"
         type="password"
+        autoComplete="current-password"
         mb={2}
         onChange={onChange}
         isRequired
