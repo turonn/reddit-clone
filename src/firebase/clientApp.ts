@@ -1,21 +1,35 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { initializeApp, getApp, getApps } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getAnalytics } from 'firebase/analytics';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAWlgnlxIKyQAPQNxXgOFInKErzbtQyLTI",
-  authDomain: "instrument-inventory.firebaseapp.com",
-  projectId: "instrument-inventory",
-  storageBucket: "instrument-inventory.appspot.com",
-  messagingSenderId: "124742206355",
-  appId: "1:124742206355:web:5a81c93c405e9cc1999e66",
-  measurementId: "G-JB7K08PD8G"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// Initialize Firebase for SSR
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const firestore = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+// analytics neds "window" to run, but window is only generated on the client and we are
+// rendering this app serverside. This check only sets analytics when it reaches the client.
+let analytics;
+if (app.name && typeof window !== 'undefined') {
+  analytics = getAnalytics(app);
+}
+
+export { app, analytics, firestore, auth, storage };
