@@ -12,33 +12,34 @@ import { useSetRecoilState } from 'recoil';
 import { authModalState } from '../../../atoms/authModalAtom';
 import { auth } from '../../../firebase/clientApp';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { FIREBASE_ERRORS } from '../../../firebase/errors';
 
 const SignUp: React.FC = () => {
+  const setAuthModalState = useSetRecoilState(authModalState);
   const [signUpForm, setSignUpForm] = useState({
     email: '',
     password: '',
     confirmPassword: '',
   });
-  const [createUserWithEmailAndPassword, user, loading, error] =
+  const [createUserWithEmailAndPassword, user, loading, firebaseError] =
     useCreateUserWithEmailAndPassword(auth);
   const [formError, setFormError] = useState('');
 
-  const containsWhitespace = (str: string) => {
-    return /\s/.test(str);
-  };
-
-  const setAuthModalState = useSetRecoilState(authModalState);
-
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (containsWhitespace(signUpForm.password)) {
-      setFormError('Passwords cannot contain whitespace');
+    if (formError) setFormError('');
+    if (/\s/.test(signUpForm.password)) {
+      setFormError('password cannot contain whitespace');
       return;
+    }
+    if (signUpForm.password.length < 6) {
+      setFormError('password must be at least six characters');
     }
     if (signUpForm.password !== signUpForm.confirmPassword) {
-      setFormError('Passwords do not match.');
+      setFormError('passwords do not match');
       return;
     }
+    console.log(signUpForm.email);
     createUserWithEmailAndPassword(signUpForm.email, signUpForm.password);
   };
 
@@ -109,11 +110,13 @@ const SignUp: React.FC = () => {
           borderColor: 'brand.400',
         }}
       />
-      {formError && (
-        <Text align="center" fontSize="9px" color="red.400" fontWeight={700}>
-          {formError}
-        </Text>
-      )}
+      <Text align="center" fontSize="9px" color="red.400" fontWeight={700}>
+        {(formError ||
+          FIREBASE_ERRORS[
+            firebaseError?.message as keyof typeof FIREBASE_ERRORS
+          ]) ??
+          'an error occurred'}
+      </Text>
       <Button
         type="submit"
         width="100%"
@@ -121,6 +124,7 @@ const SignUp: React.FC = () => {
         height="36px"
         mt={2}
         mb={2}
+        isLoading={loading}
       >
         Sign Up
       </Button>
