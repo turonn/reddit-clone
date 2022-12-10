@@ -1,7 +1,10 @@
 import { Button, Flex, Input, Text } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import { authModalState } from '../../../atoms/authModalAtom';
+import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth'
+import { auth } from '../../../firebase/clientApp'
+import { FIREBASE_ERRORS } from '../../../firebase/errors';
 
 type LoginProps = {};
 
@@ -10,10 +13,22 @@ const Login: React.FC<LoginProps> = () => {
     email: '',
     password: '',
   });
+  const [signInWithEmailAndPassword, user, loading, firebaseError] =
+  useSignInWithEmailAndPassword(auth);
 
   const setAuthModalState = useSetRecoilState(authModalState);
 
-  const onSubmit = () => {};
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    
+    signInWithEmailAndPassword(loginForm.email, loginForm.password);
+  };
+
+  const errorMessage = () => {
+    if(firebaseError) {
+      return FIREBASE_ERRORS[firebaseError?.message as keyof typeof FIREBASE_ERRORS] ?? 'an error has occured';
+    }
+  }
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setLoginForm((prev) => ({
@@ -21,6 +36,13 @@ const Login: React.FC<LoginProps> = () => {
       [event.target.name]: event.target.value,
     }));
   };
+
+  const setViewToResetPassword = () => {
+    setAuthModalState((prev) => ({
+      ...prev,
+      view: 'resetPassword',
+    }));
+  }
 
   const setViewToSignup = () => {
     setAuthModalState((prev) => ({
@@ -65,6 +87,9 @@ const Login: React.FC<LoginProps> = () => {
           borderColor: 'brand.400',
         }}
       />
+      <Text align="center" fontSize="9px" color="red.400" fontWeight={700}>
+        {errorMessage()}
+      </Text>
       <Button
         type="submit"
         width="100%"
@@ -72,9 +97,23 @@ const Login: React.FC<LoginProps> = () => {
         height="36px"
         mt={2}
         mb={2}
+        isLoading={loading}
       >
         Log In
       </Button>
+      <Flex justifyContent="center" mb={2}>
+        <Text fontSize="9pt" mr={1}>
+          Forgot your password?
+        </Text>
+        <Text
+          fontSize="9pt"
+          color="brand.300"
+          cursor="pointer"
+          onClick={setViewToResetPassword}
+        >
+          Reset
+        </Text>
+      </Flex>
       <Flex fontSize="9px" justifyContent="center">
         <Text mr={1}>New here?</Text>
         <Text

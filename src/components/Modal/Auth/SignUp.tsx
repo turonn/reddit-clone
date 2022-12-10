@@ -3,9 +3,7 @@ import {
   Input,
   Button,
   Flex,
-  Text,
-  InputGroup,
-  InputRightElement,
+  Text
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
@@ -39,7 +37,6 @@ const SignUp: React.FC = () => {
       setFormError('passwords do not match');
       return;
     }
-    console.log(signUpForm.email);
     createUserWithEmailAndPassword(signUpForm.email, signUpForm.password);
   };
 
@@ -50,12 +47,28 @@ const SignUp: React.FC = () => {
     }));
   };
 
+  const setViewToResetPassword = () => {
+    setAuthModalState((prev) => ({
+      ...prev,
+      view: 'resetPassword',
+    }));
+  }
+
   const setViewToLogin = () => {
     setAuthModalState((prev) => ({
       ...prev,
       view: 'login',
     }));
   };
+
+  const errorMessage = () => {
+    if(formError) {
+      return formError;
+    }
+    if(firebaseError) {
+      return FIREBASE_ERRORS[firebaseError?.message as keyof typeof FIREBASE_ERRORS] ?? 'an error has occured';
+    }
+  }
 
   return (
     <form onSubmit={onSubmit}>
@@ -110,13 +123,9 @@ const SignUp: React.FC = () => {
           borderColor: 'brand.400',
         }}
       />
-      <Text align="center" fontSize="9px" color="red.400" fontWeight={700}>
-        {(formError ||
-          FIREBASE_ERRORS[
-            firebaseError?.message as keyof typeof FIREBASE_ERRORS
-          ]) ??
-          'an error occurred'}
-      </Text>
+        <Text align="center" fontSize="9px" color="red.400" fontWeight={700}>
+          {errorMessage()}
+        </Text>
       <Button
         type="submit"
         width="100%"
@@ -128,6 +137,19 @@ const SignUp: React.FC = () => {
       >
         Sign Up
       </Button>
+      <Flex justifyContent="center" mb={2}>
+        <Text fontSize="9pt" mr={1}>
+          Forgot your password?
+        </Text>
+        <Text
+          fontSize="9pt"
+          color="brand.300"
+          cursor="pointer"
+          onClick={setViewToResetPassword}
+        >
+          Reset
+        </Text>
+      </Flex>
       <Flex fontSize="9px" justifyContent="center">
         <Text mr={1}>Have an account?</Text>
         <Text
